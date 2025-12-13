@@ -1,0 +1,835 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shourov AI - Your Intelligent Assistant</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .chat-container {
+            height: calc(100vh - 280px);
+            min-height: 300px;
+        }
+        
+        .message-appear {
+            animation: fadeInUp 0.3s ease-out;
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .typing-indicator span {
+            animation: bounce 1.4s infinite ease-in-out both;
+        }
+        
+        .typing-indicator span:nth-child(1) { animation-delay: -0.32s; }
+        .typing-indicator span:nth-child(2) { animation-delay: -0.16s; }
+        
+        @keyframes bounce {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+        
+        .sidebar-item:hover {
+            transform: translateX(5px);
+        }
+        
+        .pulse-glow {
+            animation: pulseGlow 2s infinite;
+        }
+        
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 5px rgba(102, 126, 234, 0.5); }
+            50% { box-shadow: 0 0 20px rgba(102, 126, 234, 0.8); }
+        }
+        
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #1f2937;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #4b5563;
+            border-radius: 3px;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen">
+    <!-- Header -->
+    <header class="gradient-bg py-4 px-6 shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center pulse-glow">
+                    <i class="fas fa-robot text-xl"></i>
+                </div>
+                <h1 class="text-2xl font-bold">Shourov AI</h1>
+            </div>
+            <nav class="hidden md:flex items-center space-x-6">
+                <button onclick="switchTab('chat')" class="nav-btn hover:text-purple-200 transition" id="nav-chat">
+                    <i class="fas fa-comments mr-2"></i>Chat
+                </button>
+                <button onclick="switchTab('humanizer')" class="nav-btn hover:text-purple-200 transition" id="nav-humanizer">
+                    <i class="fas fa-user-edit mr-2"></i>Humanizer
+                </button>
+                <button onclick="switchTab('summarizer')" class="nav-btn hover:text-purple-200 transition" id="nav-summarizer">
+                    <i class="fas fa-compress-alt mr-2"></i>Summarizer
+                </button>
+                <button onclick="switchTab('translator')" class="nav-btn hover:text-purple-200 transition" id="nav-translator">
+                    <i class="fas fa-language mr-2"></i>Translator
+                </button>
+                <button onclick="switchTab('coder')" class="nav-btn hover:text-purple-200 transition" id="nav-coder">
+                    <i class="fas fa-code mr-2"></i>Code Gen
+                </button>
+            </nav>
+            <button onclick="toggleMobileMenu()" class="md:hidden text-2xl">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="hidden md:hidden bg-gray-800 border-b border-gray-700">
+        <div class="px-4 py-3 space-y-2">
+            <button onclick="switchTab('chat'); toggleMobileMenu()" class="block w-full text-left px-4 py-2 rounded-lg hover:bg-gray-700">
+                <i class="fas fa-comments mr-2"></i>Chat
+            </button>
+            <button onclick="switchTab('humanizer'); toggleMobileMenu()" class="block w-full text-left px-4 py-2 rounded-lg hover:bg-gray-700">
+                <i class="fas fa-user-edit mr-2"></i>Humanizer
+            </button>
+            <button onclick="switchTab('summarizer'); toggleMobileMenu()" class="block w-full text-left px-4 py-2 rounded-lg hover:bg-gray-700">
+                <i class="fas fa-compress-alt mr-2"></i>Summarizer
+            </button>
+            <button onclick="switchTab('translator'); toggleMobileMenu()" class="block w-full text-left px-4 py-2 rounded-lg hover:bg-gray-700">
+                <i class="fas fa-language mr-2"></i>Translator
+            </button>
+            <button onclick="switchTab('coder'); toggleMobileMenu()" class="block w-full text-left px-4 py-2 rounded-lg hover:bg-gray-700">
+                <i class="fas fa-code mr-2"></i>Code Gen
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto p-4 md:p-6">
+        <!-- Chat Tab -->
+        <div id="tab-chat" class="tab-content">
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                <!-- Sidebar -->
+                <div class="lg:col-span-1">
+                    <div class="bg-gray-800 rounded-2xl p-4 shadow-xl">
+                        <h3 class="text-lg font-semibold mb-4 flex items-center">
+                            <i class="fas fa-sliders-h mr-2 text-purple-400"></i>Settings
+                        </h3>
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm text-gray-400 mb-2">AI Model</label>
+                                <select id="modelSelect" class="w-full bg-gray-700 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                    <option value="openai/gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                                    <option value="openai/gpt-4o-mini">GPT-4o Mini</option>
+                                    <option value="openai/gpt-4o">GPT-4o</option>
+                                    <option value="anthropic/claude-3-haiku">Claude 3 Haiku</option>
+                                    <option value="anthropic/claude-3.5-sonnet">Claude 3.5 Sonnet</option>
+                                    <option value="google/gemini-flash-1.5">Gemini Flash 1.5</option>
+                                    <option value="meta-llama/llama-3.1-8b-instruct:free">Llama 3.1 8B (Free)</option>
+                                    <option value="google/gemma-2-9b-it:free">Gemma 2 9B (Free)</option>
+                                    <option value="qwen/qwen-2-7b-instruct:free">Qwen 2 7B (Free)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm text-gray-400 mb-2">Temperature: <span id="tempValue">0.7</span></label>
+                                <input type="range" id="temperature" min="0" max="2" step="0.1" value="0.7" class="w-full accent-purple-500" onchange="document.getElementById('tempValue').textContent = this.value">
+                            </div>
+                            <button onclick="clearChat()" class="w-full bg-red-500/20 text-red-400 rounded-lg py-2 hover:bg-red-500/30 transition">
+                                <i class="fas fa-trash mr-2"></i>Clear Chat
+                            </button>
+                        </div>
+                        
+                        <h3 class="text-lg font-semibold mt-6 mb-4 flex items-center">
+                            <i class="fas fa-magic mr-2 text-purple-400"></i>Quick Prompts
+                        </h3>
+                        <div class="space-y-2">
+                            <button onclick="usePrompt('Explain like I\'m 5:')" class="sidebar-item w-full text-left text-sm bg-gray-700 rounded-lg px-3 py-2 hover:bg-gray-600 transition">
+                                🧒 Explain simply
+                            </button>
+                            <button onclick="usePrompt('Write a creative story about:')" class="sidebar-item w-full text-left text-sm bg-gray-700 rounded-lg px-3 py-2 hover:bg-gray-600 transition">
+                                📖 Creative story
+                            </button>
+                            <button onclick="usePrompt('Debug this code:')" class="sidebar-item w-full text-left text-sm bg-gray-700 rounded-lg px-3 py-2 hover:bg-gray-600 transition">
+                                🐛 Debug code
+                            </button>
+                            <button onclick="usePrompt('Give me 10 ideas for:')" class="sidebar-item w-full text-left text-sm bg-gray-700 rounded-lg px-3 py-2 hover:bg-gray-600 transition">
+                                💡 Brainstorm ideas
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Chat Area -->
+                <div class="lg:col-span-3">
+                    <div class="bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
+                        <div class="bg-gray-750 px-6 py-4 border-b border-gray-700 flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-3 h-3 rounded-full bg-green-500 animate-pulse"></div>
+                                <span class="font-medium">AI Assistant Online</span>
+                            </div>
+                            <span id="modelDisplay" class="text-sm text-gray-400">GPT-4o Mini</span>
+                        </div>
+                        
+                        <div id="chatMessages" class="chat-container overflow-y-auto p-6 space-y-4">
+                            <div class="flex items-start space-x-3 message-appear">
+                                <div class="w-10 h-10 rounded-full gradient-bg flex items-center justify-center flex-shrink-0">
+                                    <i class="fas fa-robot"></i>
+                                </div>
+                                <div class="bg-gray-700 rounded-2xl rounded-tl-none px-4 py-3 max-w-[80%]">
+                                    <p>Hello! I'm Shourov AI, your intelligent assistant. I can help you with questions, creative writing, coding, analysis, and much more. How can I assist you today?</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="p-4 border-t border-gray-700">
+                            <div class="flex items-end space-x-3">
+                                <div class="flex-1 bg-gray-700 rounded-2xl">
+                                    <textarea id="chatInput" placeholder="Type your message..." rows="1" class="w-full bg-transparent px-4 py-3 focus:outline-none resize-none max-h-32" onkeydown="handleKeyDown(event)"></textarea>
+                                </div>
+                                <button onclick="sendMessage()" id="sendBtn" class="gradient-bg rounded-xl px-6 py-3 font-medium hover:opacity-90 transition flex items-center space-x-2">
+                                    <span class="hidden sm:inline">Send</span>
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Humanizer Tab -->
+        <div id="tab-humanizer" class="tab-content hidden">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-8">
+                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl gradient-bg mb-4">
+                        <i class="fas fa-user-edit text-3xl"></i>
+                    </div>
+                    <h2 class="text-3xl font-bold mb-2">AI Text Humanizer</h2>
+                    <p class="text-gray-400">Transform AI-generated text into natural, human-like writing</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-gray-800 rounded-2xl p-6">
+                        <label class="block text-sm font-medium text-gray-400 mb-3">AI-Generated Text</label>
+                        <textarea id="humanizeInput" rows="10" class="w-full bg-gray-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Paste your AI-generated text here..."></textarea>
+                        <div class="mt-4">
+                            <label class="block text-sm text-gray-400 mb-2">Writing Style</label>
+                            <select id="humanizeStyle" class="w-full bg-gray-700 rounded-lg px-4 py-2">
+                                <option value="casual">Casual & Friendly</option>
+                                <option value="professional">Professional</option>
+                                <option value="academic">Academic</option>
+                                <option value="creative">Creative & Engaging</option>
+                            </select>
+                        </div>
+                        <button onclick="humanizeText()" class="mt-4 w-full gradient-bg rounded-xl py-3 font-medium hover:opacity-90 transition">
+                            <i class="fas fa-magic mr-2"></i>Humanize Text
+                        </button>
+                    </div>
+                    <div class="bg-gray-800 rounded-2xl p-6">
+                        <label class="block text-sm font-medium text-gray-400 mb-3">Humanized Output</label>
+                        <div id="humanizeOutput" class="w-full bg-gray-700 rounded-xl px-4 py-3 min-h-[280px] whitespace-pre-wrap">Your humanized text will appear here...</div>
+                        <button onclick="copyToClipboard('humanizeOutput')" class="mt-4 w-full bg-gray-700 rounded-xl py-3 font-medium hover:bg-gray-600 transition">
+                            <i class="fas fa-copy mr-2"></i>Copy to Clipboard
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summarizer Tab -->
+        <div id="tab-summarizer" class="tab-content hidden">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-8">
+                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl gradient-bg mb-4">
+                        <i class="fas fa-compress-alt text-3xl"></i>
+                    </div>
+                    <h2 class="text-3xl font-bold mb-2">AI Summarizer</h2>
+                    <p class="text-gray-400">Get concise summaries of long articles, documents, or text</p>
+                </div>
+                
+                <div class="bg-gray-800 rounded-2xl p-6">
+                    <textarea id="summarizeInput" rows="8" class="w-full bg-gray-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Paste the text you want to summarize..."></textarea>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+                        <div>
+                            <label class="block text-sm text-gray-400 mb-2">Summary Length</label>
+                            <select id="summaryLength" class="w-full bg-gray-700 rounded-lg px-4 py-2">
+                                <option value="brief">Brief (1-2 sentences)</option>
+                                <option value="short">Short (1 paragraph)</option>
+                                <option value="detailed">Detailed (multiple paragraphs)</option>
+                                <option value="bullets">Bullet Points</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm text-gray-400 mb-2">Focus On</label>
+                            <select id="summaryFocus" class="w-full bg-gray-700 rounded-lg px-4 py-2">
+                                <option value="main">Main Ideas</option>
+                                <option value="facts">Key Facts & Data</option>
+                                <option value="actions">Action Items</option>
+                                <option value="conclusions">Conclusions</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <button onclick="summarizeText()" class="mt-4 w-full gradient-bg rounded-xl py-3 font-medium hover:opacity-90 transition">
+                        <i class="fas fa-compress-alt mr-2"></i>Summarize
+                    </button>
+                    
+                    <div class="mt-6">
+                        <label class="block text-sm font-medium text-gray-400 mb-3">Summary</label>
+                        <div id="summarizeOutput" class="w-full bg-gray-700 rounded-xl px-4 py-3 min-h-[150px] whitespace-pre-wrap">Your summary will appear here...</div>
+                        <button onclick="copyToClipboard('summarizeOutput')" class="mt-4 bg-gray-700 rounded-xl px-6 py-2 font-medium hover:bg-gray-600 transition">
+                            <i class="fas fa-copy mr-2"></i>Copy
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Translator Tab -->
+        <div id="tab-translator" class="tab-content hidden">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-8">
+                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl gradient-bg mb-4">
+                        <i class="fas fa-language text-3xl"></i>
+                    </div>
+                    <h2 class="text-3xl font-bold mb-2">AI Translator</h2>
+                    <p class="text-gray-400">Translate text between languages with context awareness</p>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-gray-800 rounded-2xl p-6">
+                        <div class="flex items-center justify-between mb-3">
+                            <label class="text-sm font-medium text-gray-400">From</label>
+                            <select id="fromLang" class="bg-gray-700 rounded-lg px-3 py-1 text-sm">
+                                <option value="auto">Auto Detect</option>
+                                <option value="English">English</option>
+                                <option value="Spanish">Spanish</option>
+                                <option value="French">French</option>
+                                <option value="German">German</option>
+                                <option value="Chinese">Chinese</option>
+                                <option value="Japanese">Japanese</option>
+                                <option value="Korean">Korean</option>
+                                <option value="Arabic">Arabic</option>
+                                <option value="Hindi">Hindi</option>
+                                <option value="Bengali">Bengali</option>
+                                <option value="Portuguese">Portuguese</option>
+                                <option value="Russian">Russian</option>
+                            </select>
+                        </div>
+                        <textarea id="translateInput" rows="8" class="w-full bg-gray-700 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Enter text to translate..."></textarea>
+                    </div>
+                    <div class="bg-gray-800 rounded-2xl p-6">
+                        <div class="flex items-center justify-between mb-3">
+                            <label class="text-sm font-medium text-gray-400">To</label>
+                            <select id="toLang" class="bg-gray-700 rounded-lg px-3 py-1 text-sm">
+                                <option value="English">English</option>
+                                <option value="Spanish">Spanish</option>
+                                <option value="French">French</option>
+                                <option value="German">German</option>
+                                <option value="Chinese">Chinese</option>
+                                <option value="Japanese">Japanese</option>
+                                <option value="Korean">Korean</option>
+                                <option value="Arabic">Arabic</option>
+                                <option value="Hindi">Hindi</option>
+                                <option value="Bengali">Bengali</option>
+                                <option value="Portuguese">Portuguese</option>
+                                <option value="Russian">Russian</option>
+                            </select>
+                        </div>
+                        <div id="translateOutput" class="w-full bg-gray-700 rounded-xl px-4 py-3 min-h-[200px] whitespace-pre-wrap">Translation will appear here...</div>
+                        <button onclick="copyToClipboard('translateOutput')" class="mt-4 bg-gray-700 rounded-xl px-6 py-2 font-medium hover:bg-gray-600 transition">
+                            <i class="fas fa-copy mr-2"></i>Copy
+                        </button>
+                    </div>
+                </div>
+                <button onclick="translateText()" class="mt-6 w-full gradient-bg rounded-xl py-3 font-medium hover:opacity-90 transition">
+                    <i class="fas fa-exchange-alt mr-2"></i>Translate
+                </button>
+            </div>
+        </div>
+
+        <!-- Code Generator Tab -->
+        <div id="tab-coder" class="tab-content hidden">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-8">
+                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl gradient-bg mb-4">
+                        <i class="fas fa-code text-3xl"></i>
+                    </div>
+                    <h2 class="text-3xl font-bold mb-2">AI Code Generator</h2>
+                    <p class="text-gray-400">Generate, explain, or convert code in any programming language</p>
+                </div>
+                
+                <div class="bg-gray-800 rounded-2xl p-6">
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+                        <div>
+                            <label class="block text-sm text-gray-400 mb-2">Task</label>
+                            <select id="codeTask" class="w-full bg-gray-700 rounded-lg px-4 py-2">
+                                <option value="generate">Generate Code</option>
+                                <option value="explain">Explain Code</option>
+                                <option value="convert">Convert Code</option>
+                                <option value="debug">Debug & Fix</option>
+                                <option value="optimize">Optimize Code</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm text-gray-400 mb-2">Language</label>
+                            <select id="codeLang" class="w-full bg-gray-700 rounded-lg px-4 py-2">
+                                <option value="Python">Python</option>
+                                <option value="JavaScript">JavaScript</option>
+                                <option value="TypeScript">TypeScript</option>
+                                <option value="Java">Java</option>
+                                <option value="C++">C++</option>
+                                <option value="C#">C#</option>
+                                <option value="Go">Go</option>
+                                <option value="Rust">Rust</option>
+                                <option value="PHP">PHP</option>
+                                <option value="Ruby">Ruby</option>
+                                <option value="SQL">SQL</option>
+                                <option value="HTML/CSS">HTML/CSS</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm text-gray-400 mb-2">Target Language (for convert)</label>
+                            <select id="codeTargetLang" class="w-full bg-gray-700 rounded-lg px-4 py-2">
+                                <option value="Python">Python</option>
+                                <option value="JavaScript">JavaScript</option>
+                                <option value="TypeScript">TypeScript</option>
+                                <option value="Java">Java</option>
+                                <option value="C++">C++</option>
+                                <option value="Go">Go</option>
+                                <option value="Rust">Rust</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <textarea id="codeInput" rows="6" class="w-full bg-gray-700 rounded-xl px-4 py-3 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Describe what you want or paste code here..."></textarea>
+                    
+                    <button onclick="generateCode()" class="mt-4 w-full gradient-bg rounded-xl py-3 font-medium hover:opacity-90 transition">
+                        <i class="fas fa-play mr-2"></i>Generate
+                    </button>
+                    
+                    <div class="mt-6">
+                        <div class="flex items-center justify-between mb-3">
+                            <label class="text-sm font-medium text-gray-400">Output</label>
+                            <button onclick="copyToClipboard('codeOutput')" class="text-sm bg-gray-700 rounded-lg px-3 py-1 hover:bg-gray-600 transition">
+                                <i class="fas fa-copy mr-1"></i>Copy
+                            </button>
+                        </div>
+                        <pre id="codeOutput" class="w-full bg-gray-900 rounded-xl px-4 py-3 min-h-[200px] overflow-x-auto font-mono text-sm whitespace-pre-wrap">Generated code will appear here...</pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-12 py-6 border-t border-gray-800">
+        <div class="max-w-7xl mx-auto px-6 text-center text-gray-500">
+            <p>Powered by <span class="text-purple-400 font-semibold">Shourov AI</span> • Built with ❤️</p>
+        </div>
+    </footer>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
+        <div class="bg-gray-800 rounded-2xl p-8 text-center">
+            <div class="w-16 h-16 border-4 border-purple-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p class="text-lg">Processing your request...</p>
+        </div>
+    </div>
+
+    <script>
+        const CONFIG = {
+            apiKey: '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',
+            apiUrl: 'https://openrouter.ai/api/v1/chat/completions'
+        };
+
+        let chatHistory = [];
+        let currentTab = 'chat';
+
+        // Tab switching
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.add('hidden'));
+            document.getElementById(`tab-${tab}`).classList.remove('hidden');
+            currentTab = tab;
+            
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('text-purple-200', 'font-semibold');
+            });
+            document.getElementById(`nav-${tab}`)?.classList.add('text-purple-200', 'font-semibold');
+        }
+
+        function toggleMobileMenu() {
+            document.getElementById('mobileMenu').classList.toggle('hidden');
+        }
+
+        // API call function with retry logic
+        async function callAI(messages, model = null) {
+            const selectedModel = model || document.getElementById('modelSelect').value;
+            const temperature = parseFloat(document.getElementById('temperature').value);
+            
+            // Fallback models in case primary fails
+            const fallbackModels = [
+                'openai/gpt-3.5-turbo',
+                'meta-llama/llama-3.1-8b-instruct:free',
+                'google/gemma-2-9b-it:free',
+                'qwen/qwen-2-7b-instruct:free'
+            ];
+            
+            async function tryRequest(modelToUse) {
+                const response = await fetch(CONFIG.apiUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${CONFIG.apiKey}`,
+                        'Content-Type': 'application/json',
+                        'HTTP-Referer': window.location.origin || 'https://shourov-ai.com',
+                        'X-Title': 'Shourov AI'
+                    },
+                    body: JSON.stringify({
+                        model: modelToUse,
+                        messages: messages,
+                        temperature: temperature,
+                        max_tokens: 2048
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    console.error('API Response Error:', data);
+                    throw new Error(data.error?.message || `API error: ${response.status}`);
+                }
+                
+                if (data.choices && data.choices[0] && data.choices[0].message) {
+                    return data.choices[0].message.content;
+                } else {
+                    throw new Error('Invalid response format');
+                }
+            }
+            
+            // Try primary model first
+            try {
+                return await tryRequest(selectedModel);
+            } catch (error) {
+                console.error('Primary model failed:', error.message);
+                
+                // Try fallback models
+                for (const fallbackModel of fallbackModels) {
+                    try {
+                        console.log('Trying fallback model:', fallbackModel);
+                        return await tryRequest(fallbackModel);
+                    } catch (fallbackError) {
+                        console.error('Fallback model failed:', fallbackModel, fallbackError.message);
+                        continue;
+                    }
+                }
+                
+                throw new Error('All models failed. Please check your API key or try again later.');
+            }
+        }
+
+        // Chat functions
+        function addMessage(content, isUser = false) {
+            const chatContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `flex items-start space-x-3 message-appear ${isUser ? 'flex-row-reverse space-x-reverse' : ''}`;
+            
+            const avatar = isUser 
+                ? '<div class="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0"><i class="fas fa-user"></i></div>'
+                : '<div class="w-10 h-10 rounded-full gradient-bg flex items-center justify-center flex-shrink-0"><i class="fas fa-robot"></i></div>';
+            
+            const bubbleClass = isUser 
+                ? 'bg-blue-600 rounded-2xl rounded-tr-none' 
+                : 'bg-gray-700 rounded-2xl rounded-tl-none';
+            
+            messageDiv.innerHTML = `
+                ${avatar}
+                <div class="${bubbleClass} px-4 py-3 max-w-[80%]">
+                    <p class="whitespace-pre-wrap">${escapeHtml(content)}</p>
+                </div>
+            `;
+            
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function addTypingIndicator() {
+            const chatContainer = document.getElementById('chatMessages');
+            const typingDiv = document.createElement('div');
+            typingDiv.id = 'typingIndicator';
+            typingDiv.className = 'flex items-start space-x-3 message-appear';
+            typingDiv.innerHTML = `
+                <div class="w-10 h-10 rounded-full gradient-bg flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="bg-gray-700 rounded-2xl rounded-tl-none px-4 py-3">
+                    <div class="typing-indicator flex space-x-1">
+                        <span class="w-2 h-2 bg-gray-400 rounded-full"></span>
+                        <span class="w-2 h-2 bg-gray-400 rounded-full"></span>
+                        <span class="w-2 h-2 bg-gray-400 rounded-full"></span>
+                    </div>
+                </div>
+            `;
+            chatContainer.appendChild(typingDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function removeTypingIndicator() {
+            document.getElementById('typingIndicator')?.remove();
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            if (!message) return;
+            
+            input.value = '';
+            addMessage(message, true);
+            
+            chatHistory.push({ role: 'user', content: message });
+            
+            addTypingIndicator();
+            document.getElementById('sendBtn').disabled = true;
+            
+            try {
+                const systemMessage = {
+                    role: 'system',
+                    content: 'You are Shourov AI, a helpful, friendly, and knowledgeable AI assistant. Provide clear, accurate, and engaging responses. Use markdown formatting when appropriate.'
+                };
+                
+                const response = await callAI([systemMessage, ...chatHistory]);
+                removeTypingIndicator();
+                addMessage(response);
+                chatHistory.push({ role: 'assistant', content: response });
+                
+                // Update model display
+                document.getElementById('modelDisplay').textContent = 
+                    document.getElementById('modelSelect').options[document.getElementById('modelSelect').selectedIndex].text;
+            } catch (error) {
+                removeTypingIndicator();
+                console.error('Chat Error:', error);
+                addMessage('Sorry, I encountered an error: ' + error.message + '. Please try selecting a different model or try again.');
+            }
+            
+            document.getElementById('sendBtn').disabled = false;
+        }
+
+        function handleKeyDown(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        }
+
+        function clearChat() {
+            chatHistory = [];
+            document.getElementById('chatMessages').innerHTML = `
+                <div class="flex items-start space-x-3 message-appear">
+                    <div class="w-10 h-10 rounded-full gradient-bg flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="bg-gray-700 rounded-2xl rounded-tl-none px-4 py-3 max-w-[80%]">
+                        <p>Chat cleared! How can I help you today?</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        function usePrompt(prompt) {
+            document.getElementById('chatInput').value = prompt + ' ';
+            document.getElementById('chatInput').focus();
+        }
+
+        // Humanizer function
+        async function humanizeText() {
+            const input = document.getElementById('humanizeInput').value.trim();
+            const style = document.getElementById('humanizeStyle').value;
+            if (!input) return alert('Please enter text to humanize');
+            
+            showLoading();
+            try {
+                const prompt = `Rewrite the following text to sound more natural and human-like. Use a ${style} writing style. 
+                
+Make it:
+- Sound like a real person wrote it
+- Include natural variations in sentence structure
+- Add subtle personality and warmth
+- Remove robotic or formulaic phrasing
+- Keep the same meaning and information
+
+Text to humanize:
+${input}
+
+Humanized version:`;
+                
+                const response = await callAI([{ role: 'user', content: prompt }]);
+                document.getElementById('humanizeOutput').textContent = response;
+            } catch (error) {
+                console.error('Humanizer Error:', error);
+                document.getElementById('humanizeOutput').textContent = 'Error: ' + error.message;
+            }
+            hideLoading();
+        }
+
+        // Summarizer function
+        async function summarizeText() {
+            const input = document.getElementById('summarizeInput').value.trim();
+            const length = document.getElementById('summaryLength').value;
+            const focus = document.getElementById('summaryFocus').value;
+            if (!input) return alert('Please enter text to summarize');
+            
+            showLoading();
+            try {
+                const prompt = `Summarize the following text. 
+                
+Length: ${length}
+Focus on: ${focus}
+
+Text:
+${input}
+
+Summary:`;
+                
+                const response = await callAI([{ role: 'user', content: prompt }]);
+                document.getElementById('summarizeOutput').textContent = response;
+            } catch (error) {
+                console.error('Summarizer Error:', error);
+                document.getElementById('summarizeOutput').textContent = 'Error: ' + error.message;
+            }
+            hideLoading();
+        }
+
+        // Translator function
+        async function translateText() {
+            const input = document.getElementById('translateInput').value.trim();
+            const fromLang = document.getElementById('fromLang').value;
+            const toLang = document.getElementById('toLang').value;
+            if (!input) return alert('Please enter text to translate');
+            
+            showLoading();
+            try {
+                const prompt = `Translate the following text ${fromLang === 'auto' ? '' : `from ${fromLang}`} to ${toLang}. 
+Provide only the translation, no explanations.
+
+Text:
+${input}
+
+Translation:`;
+                
+                const response = await callAI([{ role: 'user', content: prompt }]);
+                document.getElementById('translateOutput').textContent = response;
+            } catch (error) {
+                console.error('Translator Error:', error);
+                document.getElementById('translateOutput').textContent = 'Error: ' + error.message;
+            }
+            hideLoading();
+        }
+
+        // Code generator function
+        async function generateCode() {
+            const input = document.getElementById('codeInput').value.trim();
+            const task = document.getElementById('codeTask').value;
+            const lang = document.getElementById('codeLang').value;
+            const targetLang = document.getElementById('codeTargetLang').value;
+            if (!input) return alert('Please enter a description or code');
+            
+            showLoading();
+            try {
+                let prompt = '';
+                switch(task) {
+                    case 'generate':
+                        prompt = `Generate ${lang} code for the following requirement. Include comments explaining the code.\n\nRequirement: ${input}`;
+                        break;
+                    case 'explain':
+                        prompt = `Explain the following ${lang} code in detail. Break down what each part does.\n\nCode:\n${input}`;
+                        break;
+                    case 'convert':
+                        prompt = `Convert the following ${lang} code to ${targetLang}. Maintain the same functionality.\n\nOriginal code:\n${input}`;
+                        break;
+                    case 'debug':
+                        prompt = `Debug and fix the following ${lang} code. Explain what was wrong and show the corrected version.\n\nCode:\n${input}`;
+                        break;
+                    case 'optimize':
+                        prompt = `Optimize the following ${lang} code for better performance and readability.\n\nCode:\n${input}`;
+                        break;
+                }
+                
+                const response = await callAI([{ role: 'user', content: prompt }]);
+                document.getElementById('codeOutput').textContent = response;
+            } catch (error) {
+                console.error('Code Generator Error:', error);
+                document.getElementById('codeOutput').textContent = 'Error: ' + error.message;
+            }
+            hideLoading();
+        }
+
+        // Utility functions
+        function showLoading() {
+            document.getElementById('loadingOverlay').classList.remove('hidden');
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.add('hidden');
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function copyToClipboard(elementId) {
+            const text = document.getElementById(elementId).textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Copied to clipboard!');
+            });
+        }
+
+        // Auto-resize textarea
+        document.getElementById('chatInput').addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 128) + 'px';
+        });
+
+        // Initialize
+        switchTab('chat');
+    </script>
+</body>
+</html>
