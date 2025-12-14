@@ -161,8 +161,8 @@
                                 <p id="modelCount" class="text-xs text-gray-500 mt-1"></p>
                             </div>
                             <div>
-                                <label class="block text-sm text-gray-400 mb-2">Temperature: <span id="tempValue">0.7</span></label>
-                                <input type="range" id="temperature" min="0" max="2" step="0.1" value="0.7" class="w-full accent-purple-500" onchange="document.getElementById('tempValue').textContent = this.value">
+                                <label class="block text-sm text-gray-400 mb-2">Creativity: <span id="tempValue">0.7</span></label>
+                                <input type="range" id="Creativity " min="0" max="2" step="0.1" value="0.7" class="w-full accent-purple-500" onchange="document.getElementById('tempValue').textContent = this.value">
                             </div>
                             
                             <!-- Web Search Toggle -->
@@ -554,7 +554,7 @@
         // API call function with retry logic
         async function callAI(messages, model = null, forceWebSearch = null) {
             let selectedModel = model || document.getElementById('modelSelect').value;
-            const temperature = parseFloat(document.getElementById('temperature').value);
+            const Creativity  = parseFloat(document.getElementById('Creativity ').value);
             const useWebSearch = forceWebSearch !== null ? forceWebSearch : webSearchEnabled;
             
             // If web search is enabled, use Perplexity models
@@ -588,7 +588,7 @@
                     body: JSON.stringify({
                         model: modelToUse,
                         messages: messages,
-                        temperature: temperature,
+                        Creativity : Creativity ,
                         max_tokens: 2048
                     })
                 });
@@ -1059,4 +1059,4 @@ Translation:`;
         loadModels(); // Load models on page load
     </script>
 </body>
-                    </html>
+</html>
